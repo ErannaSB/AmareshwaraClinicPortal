@@ -1,0 +1,51 @@
+﻿@model IPagedList<WebApplication3.Models.Medicine>
+
+@{
+    ViewBag.Title = "Index";
+}
+@using PagedList;
+@using PagedList.Mvc;
+<h3>Medicine Information </h3>
+<p>
+    @Html.ActionLink("Create New", "Create")
+    @using (Html.BeginForm("Index", "Medicines", FormMethod.Get))
+    {
+        <div class="pull-right">
+            <input type="text" name="search" placeholder="Search Medicine" />
+
+            <input type="submit" name="Submit" value="Search" />
+        </div>
+    }
+</p>
+<br />
+<br />
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.First().MedicineShortName)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.First().MedicineFullName)
+        </th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.MedicineShortName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.MedicineFullName)
+            </td>
+            <td>
+                @Html.ActionLink("Edit", "Edit", new { id = item.MedicineId }) |
+                @Html.ActionLink("Details", "Details", new { id = item.MedicineId }) |
+                @Html.ActionLink("Delete", "Delete", new { id = item.MedicineId })
+            </td>
+        </tr>
+    }
+
+</table>
+@Html.PagedListPager(Model, j => Url.Action("Index", "Medicines", new { j, search = Request.QueryString["search"] }))
