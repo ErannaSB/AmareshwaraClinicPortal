@@ -20,13 +20,17 @@ namespace WebApplication3.Models
         [Display(Name = "Name")]
         [Required]
         public string PatientName { get; set; }
+        [Required]
+
         public string Age { get; set; }
         public string Address { get; set; }
         [Display(Name = "Gender")]
+        [Required]
 
         public string Sex { get; set; }
         public string Date { get; set; }
         [Display(Name = "Mobile No")]
+        [Required]
 
         public string MobileNumber { get; set; }
         public string Diagnosis { get; set; }
