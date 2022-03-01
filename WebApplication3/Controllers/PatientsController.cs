@@ -53,7 +53,7 @@ namespace WebApplication3.Controllers
                         //i.PID = i.PatientId + i.PatientName.Substring(0, 3);
                         sb.Clear();
                     }
-                    if (i.PatientId>0 && i.PatientName.Length>3)
+                    if (i.PatientId>0 && i.PatientName.Length>=3)
                         i.PID = i.PatientId + i.PatientName.Substring(0, 3);
 
                 }
