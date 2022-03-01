@@ -55,7 +55,7 @@
           <Property Name="Password" Type="nvarchar" MaxLength="50" />
           <Property Name="Email" Type="nvarchar" MaxLength="50" />
         </EntityType>
-        <Association Name="FK__UserRoleM__RoleI__72C60C4A">
+        <Association Name="FK__UserRoleM__RoleI__5441852A">
           <End Role="Roles" Type="Self.Roles" Multiplicity="0..1" />
           <End Role="UserRoleMapping" Type="Self.UserRoleMapping" Multiplicity="*" />
           <ReferentialConstraint>
@@ -67,7 +67,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__UserRoleM__UserI__71D1E811">
+        <Association Name="FK__UserRoleM__UserI__5535A963">
           <End Role="Users" Type="Self.Users" Multiplicity="0..1" />
           <End Role="UserRoleMapping" Type="Self.UserRoleMapping" Multiplicity="*" />
           <ReferentialConstraint>
@@ -97,11 +97,11 @@
           <EntitySet Name="Roles" EntityType="Self.Roles" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="UserRoleMapping" EntityType="Self.UserRoleMapping" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Users" EntityType="Self.Users" Schema="dbo" store:Type="Tables" />
-          <AssociationSet Name="FK__UserRoleM__RoleI__72C60C4A" Association="Self.FK__UserRoleM__RoleI__72C60C4A">
+          <AssociationSet Name="FK__UserRoleM__RoleI__5441852A" Association="Self.FK__UserRoleM__RoleI__5441852A">
             <End Role="Roles" EntitySet="Roles" />
             <End Role="UserRoleMapping" EntitySet="UserRoleMapping" />
           </AssociationSet>
-          <AssociationSet Name="FK__UserRoleM__UserI__71D1E811" Association="Self.FK__UserRoleM__UserI__71D1E811">
+          <AssociationSet Name="FK__UserRoleM__UserI__5535A963" Association="Self.FK__UserRoleM__UserI__5535A963">
             <End Role="Users" EntitySet="Users" />
             <End Role="UserRoleMapping" EntitySet="UserRoleMapping" />
           </AssociationSet>
