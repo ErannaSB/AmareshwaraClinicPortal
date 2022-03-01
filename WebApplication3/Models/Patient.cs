@@ -11,20 +11,15 @@ namespace WebApplication3.Models
 {
     using System;
     using System.Collections.Generic;
-    using System.ComponentModel.DataAnnotations;
-    using System.Web.Mvc;
-
+    
     public partial class Patient
     {
         public int PatientId { get; set; }
-        [Display(Name = "Name")]
         public string PatientName { get; set; }
         public string Age { get; set; }
         public string Address { get; set; }
-        [Display(Name = "Gender")]
         public string Sex { get; set; }
         public string Date { get; set; }
-        [Display(Name = "Mobile No")]
         public string MobileNumber { get; set; }
         public string Diagnosis { get; set; }
         public string Medicines { get; set; }
@@ -32,8 +27,9 @@ namespace WebApplication3.Models
         public string Note { get; set; }
         public Nullable<int> MedicineId { get; set; }
         public string PID { get; set; }
+    
+        public virtual Medicine Medicine { get; set; }
         public string[] SelectedIDMedicines { get; set; }
 
-        public virtual Medicine Medicine { get; set; }
     }
 }
