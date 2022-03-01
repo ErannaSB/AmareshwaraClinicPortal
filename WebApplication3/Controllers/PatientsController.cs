@@ -23,49 +23,55 @@ namespace WebApplication3.Controllers
 
         // GET: Patients
 
-        public ActionResult Index(string search,int?  j)
+        public ActionResult Index(string search, int? j)
         {
             var patients = db.Patients.Include(p => p.Medicine).ToList();
-           
-            Patient res = new Patient();
-            if (patients!=null)
+            try
             {
-                foreach(var i in patients)
+                Patient res = new Patient();
+                if (patients != null)
                 {
-                    if (!(i.Medicines==null))
+                    foreach (var i in patients)
                     {
-                        StringBuilder sb = new StringBuilder();
-                        res.Medicines = String.Concat(i.Medicines);
-                        int[] midint = res.Medicines.Split(',').Select(n => Convert.ToInt32(n)).ToArray();
-                        foreach (var t in midint)
+                        if (!(i.Medicines == null))
                         {
-                            var id = db.Medicines.Where(x => x.MedicineId == t);
-                            var val = id.Select(x => x.MedicineShortName).FirstOrDefault();
-                            i.Medicines = val;
-                            if(!string.IsNullOrEmpty(i.Medicines))
-                            sb.Append(val + ",");
+                            StringBuilder sb = new StringBuilder();
+                            res.Medicines = String.Concat(i.Medicines);
+                            int[] midint = res.Medicines.Split(',').Select(n => Convert.ToInt32(n)).ToArray();
+                            foreach (var t in midint)
+                            {
+                                var id = db.Medicines.Where(x => x.MedicineId == t);
+                                var val = id.Select(x => x.MedicineShortName).FirstOrDefault();
+                                i.Medicines = val;
+                                if (!string.IsNullOrEmpty(i.Medicines))
+                                    sb.Append(val + ",");
 
+                            }
+                            if (sb.Length > 0)
+                                sb.Remove(sb.Length - 1, 1);
+                            i.Medicines = sb.ToString();
+
+                            //i.PID = i.PatientId + i.PatientName.Substring(0, 3);
+                            sb.Clear();
                         }
-                        if(sb.Length>0)
-                        sb.Remove(sb.Length - 1, 1);
-                        i.Medicines = sb.ToString();
+                        if (i.PatientId > 0 && i.PatientName.Length >= 3)
+                            i.PID = i.PatientId + i.PatientName.Substring(0, 3);
 
-                        //i.PID = i.PatientId + i.PatientName.Substring(0, 3);
-                        sb.Clear();
                     }
-                    if (i.PatientId>0 && i.PatientName.Length>=3)
-                        i.PID = i.PatientId + i.PatientName.Substring(0, 3);
-
+                }
+                if (search != null && search != "")
+                {
+                    var mob = patients.Select(x => x.MobileNumber);
+                    var Pname = patients.Select(x => x.PatientName);
+                    if (mob != null && Pname != null)
+                        patients = patients.Where(x => x.PatientName.ToLower().Contains(search.ToLower()) || x.MobileNumber.ToLower().Contains(search.ToLower())).ToList();
                 }
             }
-            if (search != null && search != "")
+            catch (Exception ex)
             {
-                var mob=patients.Select(x => x.MobileNumber);
-                var Pname=patients.Select(x => x.PatientName);
-                if(mob!=null && Pname!=null)
-                patients = patients.Where(x => x.PatientName.ToLower().Contains(search.ToLower()) || x.MobileNumber.ToLower().Contains(search.ToLower())).ToList();
+                throw ex;
             }
-            return View(patients.ToPagedList(j??1,3));
+            return View(patients.ToPagedList(j ?? 1, 3));
         }
 
         // GET: Patients/Details/5
@@ -78,22 +84,29 @@ namespace WebApplication3.Controllers
             Patient patient = db.Patients.Find(id);
             Patient res = new Patient();
             StringBuilder sb = new StringBuilder();
-            if (patient!=null)
+            try
             {
+                if (patient != null)
+                {
                     res.Medicines = String.Concat(patient.Medicines);
-                    if(!string.IsNullOrEmpty(res.Medicines))
-                   {
-                    int[] midint = res.Medicines.Split(',').Select(n => Convert.ToInt32(n)).ToArray();
-                    foreach (var t in midint)
+                    if (!string.IsNullOrEmpty(res.Medicines))
                     {
-                        var pid = db.Medicines.Where(x => x.MedicineId == t);
-                        var val = pid.Select(x => x.MedicineShortName).FirstOrDefault();
-                        patient.Medicines = val;
-                        sb.Append(val + ",");
+                        int[] midint = res.Medicines.Split(',').Select(n => Convert.ToInt32(n)).ToArray();
+                        foreach (var t in midint)
+                        {
+                            var pid = db.Medicines.Where(x => x.MedicineId == t);
+                            var val = pid.Select(x => x.MedicineShortName).FirstOrDefault();
+                            patient.Medicines = val;
+                            sb.Append(val + ",");
+                        }
+                        patient.Medicines = sb.ToString();
                     }
-                    patient.Medicines = sb.ToString();
-                   }
-                  
+
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
             }
             if (patient == null)
             {
@@ -116,24 +129,31 @@ namespace WebApplication3.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Create([Bind(Include = "PatientId,PatientName,Age,Address,Sex,Date,MobileNumber,Diagnosis,Medicines,Investigation,Note,MedicineId,SelectedIDMedicines")] Patient patient)
         {
-            string result = null;
-            if (patient.SelectedIDMedicines != null)
+            try
             {
-                result = string.Join(",", patient.SelectedIDMedicines);
-            }
-            patient.Medicines = result;
-            if (ModelState.IsValid)
+                string result = null;
+                if (patient.SelectedIDMedicines != null)
+                {
+                    result = string.Join(",", patient.SelectedIDMedicines);
+                }
+                patient.Medicines = result;
+                if (ModelState.IsValid)
                 {
 
-                        db.Patients.Add(patient);
-                        db.SaveChanges();
-                     
-                    
-                return RedirectToAction("Index");
-            }
-            
+                    db.Patients.Add(patient);
+                    db.SaveChanges();
 
-            ViewBag.MedicineId = new SelectList(db.Medicines, "MedicineId", "MedicineShortName", patient.MedicineId);
+
+                    return RedirectToAction("Index");
+                }
+
+
+                ViewBag.MedicineId = new SelectList(db.Medicines, "MedicineId", "MedicineShortName", patient.MedicineId);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
             return View(patient);
         }
 
@@ -144,31 +164,39 @@ namespace WebApplication3.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
+
             Patient patient = db.Patients.Find(id);
             Patient res = new Patient();
             StringBuilder sb = new StringBuilder();
-            if (patient != null)
+            try
             {
-                res.Medicines = String.Concat(patient.Medicines);
-                if(!string.IsNullOrEmpty(res.Medicines))
+                if (patient != null)
                 {
-                    int[] midint = res.Medicines.Split(',').Select(n => Convert.ToInt32(n)).ToArray();
-                    foreach (var t in midint)
+                    res.Medicines = String.Concat(patient.Medicines);
+                    if (!string.IsNullOrEmpty(res.Medicines))
                     {
-                        var pid = db.Medicines.Where(x => x.MedicineId == t);
-                        var val = pid.Select(x => x.MedicineShortName).FirstOrDefault();
-                        patient.Medicines = val;
-                        sb.Append(val + ",");
+                        int[] midint = res.Medicines.Split(',').Select(n => Convert.ToInt32(n)).ToArray();
+                        foreach (var t in midint)
+                        {
+                            var pid = db.Medicines.Where(x => x.MedicineId == t);
+                            var val = pid.Select(x => x.MedicineShortName).FirstOrDefault();
+                            patient.Medicines = val;
+                            sb.Append(val + ",");
+                        }
+                        sb.Remove(sb.Length - 1, 1);
+                        patient.Medicines = sb.ToString();
                     }
-                    sb.Remove(sb.Length - 1, 1);
-                    patient.Medicines = sb.ToString();
                 }
+                if (patient == null)
+                {
+                    return HttpNotFound();
+                }
+                ViewBag.MedicineId = new SelectList(db.Medicines, "MedicineId", "MedicineShortName", patient.MedicineId);
             }
-            if (patient == null)
+            catch (Exception ex)
             {
-                return HttpNotFound();
+                throw ex;
             }
-            ViewBag.MedicineId = new SelectList(db.Medicines, "MedicineId", "MedicineShortName", patient.MedicineId);
             return View(patient);
         }
 
@@ -179,10 +207,13 @@ namespace WebApplication3.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Edit([Bind(Include = "PatientId,PatientName,Age,Address,Sex,Date,MobileNumber,Diagnosis,Medicines,Investigation,Note,MedicineId,SelectedIDMedicines")] Patient patient)
         {
-            string result=null;
-            if (patient.SelectedIDMedicines!=null)
+            try
             {
-               result = string.Join(",", patient.SelectedIDMedicines);
+
+                string result = null;
+            if (patient.SelectedIDMedicines != null)
+            {
+                result = string.Join(",", patient.SelectedIDMedicines);
             }
 
             patient.Medicines = result;
@@ -193,6 +224,11 @@ namespace WebApplication3.Controllers
                 return RedirectToAction("Index");
             }
             ViewBag.MedicineId = new SelectList(db.Medicines, "MedicineId", "MedicineShortName", patient.MedicineId);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
             return View(patient);
         }
 
@@ -206,10 +242,13 @@ namespace WebApplication3.Controllers
             Patient patient = db.Patients.Find(id);
             Patient res = new Patient();
             StringBuilder sb = new StringBuilder();
-            if (patient != null)
+            try
+            {
+
+                if (patient != null)
             {
                 res.Medicines = String.Concat(patient.Medicines);
-                if(!string.IsNullOrEmpty(res.Medicines))
+                if (!string.IsNullOrEmpty(res.Medicines))
                 {
                     int[] midint = res.Medicines.Split(',').Select(n => Convert.ToInt32(n)).ToArray();
                     foreach (var t in midint)
@@ -226,6 +265,11 @@ namespace WebApplication3.Controllers
             {
                 return HttpNotFound();
             }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
             return View(patient);
         }
 
@@ -234,9 +278,17 @@ namespace WebApplication3.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            Patient patient = db.Patients.Find(id);
+            try
+            {
+
+                Patient patient = db.Patients.Find(id);
             db.Patients.Remove(patient);
             db.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
             return RedirectToAction("Index");
         }
 

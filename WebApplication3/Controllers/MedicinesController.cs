@@ -19,14 +19,21 @@ namespace WebApplication3.Controllers
         // GET: Medicines
         public ActionResult Index(string search, int? j)
         {
-            var medicines = db.Medicines.ToList();
 
-            if (search != null && search != "")
+            var medicines = db.Medicines.ToList();
+            try
             {
-                var mob = medicines.Select(x => x.MedicineFullName);
-                var Pname = medicines.Select(x => x.MedicineShortName);
-                if (mob != null && Pname != null)
-                    medicines = medicines.Where(x => x.MedicineFullName.ToLower().Contains(search.ToLower()) || x.MedicineShortName.ToLower().Contains(search.ToLower())).ToList();
+                if (search != null && search != "")
+                {
+                    var mob = medicines.Select(x => x.MedicineFullName);
+                    var Pname = medicines.Select(x => x.MedicineShortName);
+                    if (mob != null && Pname != null)
+                        medicines = medicines.Where(x => x.MedicineFullName.ToLower().Contains(search.ToLower()) || x.MedicineShortName.ToLower().Contains(search.ToLower())).ToList();
+                }
+            }
+            catch(Exception ex)
+            {
+                throw ex;
             }
             return View(medicines.ToPagedList(j ?? 1, 15));
         }
@@ -59,13 +66,19 @@ namespace WebApplication3.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Create([Bind(Include = "MedicineId,MedicineShortName,MedicineFullName")] Medicine medicine)
         {
-            if (ModelState.IsValid)
+            try
             {
-                db.Medicines.Add(medicine);
-                db.SaveChanges();
-                return RedirectToAction("Index");
+                if (ModelState.IsValid)
+                {
+                    db.Medicines.Add(medicine);
+                    db.SaveChanges();
+                    return RedirectToAction("Index");
+                }
             }
-
+            catch (Exception ex)
+            {
+                throw ex;
+            }
             return View(medicine);
         }
 
@@ -91,11 +104,18 @@ namespace WebApplication3.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Edit([Bind(Include = "MedicineId,MedicineShortName,MedicineFullName")] Medicine medicine)
         {
-            if (ModelState.IsValid)
+            try
             {
-                db.Entry(medicine).State = EntityState.Modified;
-                db.SaveChanges();
-                return RedirectToAction("Index");
+                if (ModelState.IsValid)
+                {
+                    db.Entry(medicine).State = EntityState.Modified;
+                    db.SaveChanges();
+                    return RedirectToAction("Index");
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
             }
             return View(medicine);
         }
@@ -120,9 +140,16 @@ namespace WebApplication3.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            Medicine medicine = db.Medicines.Find(id);
-            db.Medicines.Remove(medicine);
-            db.SaveChanges();
+            try
+            {
+                Medicine medicine = db.Medicines.Find(id);
+                db.Medicines.Remove(medicine);
+                db.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
             return RedirectToAction("Index");
         }
 
